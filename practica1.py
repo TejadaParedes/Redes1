@@ -36,7 +36,8 @@ def procesa_paquete(us,header,data):
 	num_paquete += 1
 	#TODO imprimir los N primeros bytes
 	for i in range(args.nbytes):
-		print('{:02X} '.format(data[i]).rstrip('\n'))
+		print('{:02X} '.format(data[i]), end='', flush=True)
+	print('')
 	#Escribir el tráfico al fichero de captura con el offset temporal
 	if pdumper != None:
 		header.ts.tv_sec = header.ts.tv_sec + X*60
