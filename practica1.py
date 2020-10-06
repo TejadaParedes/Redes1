@@ -35,9 +35,12 @@ def procesa_paquete(us,header,data):
 	logging.info('Nuevo paquete de {} bytes capturado a las {}.{}'.format(header.len,header.ts.tv_sec,header.ts.tv_sec))
 	num_paquete += 1
 	#TODO imprimir los N primeros bytes
-	print('{:02X}')
+	for i in range(args.nbytes):
+		print('{:02X} '.format(data[i]).rstrip('\n'))
 	#Escribir el tráfico al fichero de captura con el offset temporal
-
+	if pdumper != None:
+		header.ts.tv_sec = header.ts.tv_sec + X*60
+		pcap_dump(pdumper, header, data)
 	
 if __name__ == "__main__":
 	global pdumper,args,handle
@@ -68,12 +71,11 @@ if __name__ == "__main__":
 	#TODO abrir la interfaz especificada para captura o la traza
 
 	if args.interface is not False:
-		p = pcap_open_live(args.interface, BUFSIZ, PROMISC, TO_MS, errbuf)
+		handle = pcap_open_live(args.interface, BUFSIZ, PROMISC, TO_MS, errbuf)
 		descr = pcap_open_dead(DLT_EN10MB, ETH_FRAME_MAX)
-		pdumper = pcap_dump_open(descr, 'captura.' + args.interface + '.' + time.time() + '.pcap')
-		pcap_dump(pdumper,header,sp)
+		pdumper = pcap_dump_open(descr, 'captura.' + args.interface + '.' + time.time() + '.pcap')		
 	elif args.tracefile is not False:
-		p = pcap_open_offline(args.tracefile, errbuf)
+		handle = pcap_open_offline(args.tracefile, errbuf)
 
 	#TODO abrir un dumper para volcar el tráfico (si se ha especificado interfaz) 
 	
@@ -92,7 +94,7 @@ if __name__ == "__main__":
 		pcap_close(descr)
 		pcap_dump_close(pdumper)
 	elif args.tracefile is not False:
-		pcap_close(p)
+		pcap_close(handle)
 	
 	
 
