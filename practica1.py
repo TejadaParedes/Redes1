@@ -40,7 +40,7 @@ def procesa_paquete(us,header,data):
 	print('')
 	#Escribir el tráfico al fichero de captura con el offset temporal
 	if pdumper != None:
-		header.ts.tv_sec = header.ts.tv_sec + X*60
+		header.ts.tv_sec = header.ts.tv_sec + TIME_OFFSET
 		pcap_dump(pdumper, header, data)
 	
 if __name__ == "__main__":
@@ -72,9 +72,9 @@ if __name__ == "__main__":
 	#TODO abrir la interfaz especificada para captura o la traza
 
 	if args.interface is not False:
-		handle = pcap_open_live(args.interface, BUFSIZ, PROMISC, TO_MS, errbuf)
+		handle = pcap_open_live(args.interface, ETH_FRAME_MAX, PROMISC, TO_MS, errbuf)
 		descr = pcap_open_dead(DLT_EN10MB, ETH_FRAME_MAX)
-		pdumper = pcap_dump_open(descr, 'captura.' + args.interface + '.' + time.time() + '.pcap')		
+		pdumper = pcap_dump_open(descr, 'captura.' + args.interface + '.' + int(time.time()) + '.pcap')		
 	elif args.tracefile is not False:
 		handle = pcap_open_offline(args.tracefile, errbuf)
 
