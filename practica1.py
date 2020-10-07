@@ -40,7 +40,8 @@ def procesa_paquete(us,header,data):
 	print('')
 	#Escribir el tráfico al fichero de captura con el offset temporal
 	if pdumper != None:
-		header.ts.tv_sec = header.ts.tv_sec + TIME_OFFSET
+		"""pcap_inject(descr, data, len(data))	
+		header.ts.tv_sec = header.ts.tv_sec + TIME_OFFSET"""
 		pcap_dump(pdumper, header, data)
 	
 if __name__ == "__main__":
@@ -73,15 +74,19 @@ if __name__ == "__main__":
 
 	if args.interface is not False:
 		handle = pcap_open_live(args.interface, ETH_FRAME_MAX, PROMISC, TO_MS, errbuf)
-		descr = pcap_open_dead(DLT_EN10MB, ETH_FRAME_MAX)
-		pdumper = pcap_dump_open(descr, 'captura.' + args.interface + '.' + int(time.time()) + '.pcap')		
+		if handle is None:
+			print('paco')
+		else:
+			print('calvo')
 	elif args.tracefile is not False:
+		print('kiojui')
 		handle = pcap_open_offline(args.tracefile, errbuf)
 
 	#TODO abrir un dumper para volcar el tráfico (si se ha especificado interfaz) 
-	
-	
-	
+	if args.interface is not False:
+		descr = pcap_open_dead(DLT_EN10MB, ETH_FRAME_MAX)
+		pdumper = pcap_dump_open(descr, 'captura.' + args.interface + '.' + str(int(time.time())) + '.pcap')
+
 	ret = pcap_loop(handle,50,procesa_paquete,None)
 	if ret == -1:
 		logging.error('Error al capturar un paquete')
