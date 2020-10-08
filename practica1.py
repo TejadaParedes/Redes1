@@ -39,10 +39,9 @@ def procesa_paquete(us,header,data):
 		print('{:02X} '.format(data[i]), end='', flush=True)
 	print('')
 	#Escribir el tráfico al fichero de captura con el offset temporal
-	if pdumper != None:
-		"""pcap_inject(descr, data, len(data))	
-		header.ts.tv_sec = header.ts.tv_sec + TIME_OFFSET"""
-		pcap_dump(pdumper, header, data)
+	"""if pdumper != None:	
+		header.ts.tv_sec = header.ts.tv_sec + TIME_OFFSET
+		pcap_dump(pdumper, header, data)"""
 	
 if __name__ == "__main__":
 	global pdumper,args,handle
@@ -74,18 +73,14 @@ if __name__ == "__main__":
 
 	if args.interface is not False:
 		handle = pcap_open_live(args.interface, ETH_FRAME_MAX, PROMISC, TO_MS, errbuf)
-		if handle is None:
-			print('paco')
-		else:
-			print('calvo')
 	elif args.tracefile is not False:
-		print('kiojui')
 		handle = pcap_open_offline(args.tracefile, errbuf)
 
 	#TODO abrir un dumper para volcar el tráfico (si se ha especificado interfaz) 
-	if args.interface is not False:
+	"""if args.interface is not False:
 		descr = pcap_open_dead(DLT_EN10MB, ETH_FRAME_MAX)
-		pdumper = pcap_dump_open(descr, 'captura.' + args.interface + '.' + str(int(time.time())) + '.pcap')
+		pdumper = pcap_dump_open(descr, 'captura.' + args.interface + '.' + str(int(time.time())) + '.pcap')"""
+
 
 	ret = pcap_loop(handle,50,procesa_paquete,None)
 	if ret == -1:
@@ -96,11 +91,11 @@ if __name__ == "__main__":
 		logging.debug('No mas paquetes o limite superado')
 	logging.info('{} paquetes procesados'.format(num_paquete))
 	#TODO si se ha creado un dumper cerrarlo
-	if args.interface is not False:
+	"""if args.interface is not False:
 		pcap_close(descr)
 		pcap_dump_close(pdumper)
 	elif args.tracefile is not False:
-		pcap_close(handle)
+		pcap_close(handle)"""
 	
 	
 
