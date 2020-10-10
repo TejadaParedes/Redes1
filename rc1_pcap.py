@@ -28,7 +28,7 @@ def mycallback(us,h,data):
 
 
 
-pcap = ctypes.cdll.LoadLibrary("libpcap.so")
+pcap = ctypes.cdll.LoadLibrary("libpcap.dylib")
 
 
 
