@@ -1,0 +1,26 @@
+################################################################
+# Autores: Alejandro Tejada Paredes & Federico Perez Fernandez #
+# Fecha: 10-Oct-2020                                           #
+# Brief: Practica 1 de REDES                                   #
+################################################################
+
+
+-- Comentarios --
+
+Comenzamos la práctica y al intentar ejecutar el programa ya aparece
+el primer problema que debemos de afrontar; en MacOS los archivos compartidos
+se guardan con la extension .dylib por lo que en el archivo rc1_pcap.py debemos 
+cambiar la linea pcap = ctypes.cdll.LoadLibrary("libpcap.os") por la misma pero
+con "libcap.dylib".
+
+
+-- Criterios de evaluación --
+
+Normativa de entrega cumplida en su totalidad:
+Contar paquetes de una traza (independientemente del número de paquetes): 
+Contar paquetes de la interfaz de red:
+Uso de un único "flujo" para traza e interfaz:
+Almacenar correctamente el tráfico capturado en vivo una traza:
+Modificar fecha correctamente:
+Imprimir los N primeros bytes de un paquete (pruebe para N>15) y validarlo con Wireshark (captura de pantalla):
+Ejercicios de captura de tráfico:
