@@ -27,8 +27,7 @@ def mycallback(us,h,data):
         user_callback (us,header,bytes(data[:header.caplen]))
 
 
-
-pcap = ctypes.cdll.LoadLibrary("libpcap.os")
+pcap = ctypes.cdll.LoadLibrary("libpcap.so")
 
 
 
@@ -116,6 +115,7 @@ def pcap_open_live(device:str,snaplen:int,promisc:int,to_ms:int,errbuf:bytearray
     if device is None:
         raise ValueError("El objeto device no puede ser None")
     pol = pcap.pcap_open_live
+    #pol.restype =ctypes.c_void_p
     pol.restype = ctypes.POINTER(ctypes.c_void_p)
     dv =  bytes(str(device), 'ascii')
     sn = ctypes.c_int(snaplen)

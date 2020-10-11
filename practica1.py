@@ -73,15 +73,15 @@ if __name__ == "__main__":
 	pdumper = None
 	
 	# Abrimos la interfaz especificada para captura o la traza
+	# Abrimos un dumper para volcar el tráfico (si se ha especificado interfaz) 
 	if args.interface is not False:
 		handle = pcap_open_live(args.interface, ETH_FRAME_MAX, PROMISC, TO_MS, errbuf)
+		descr = pcap_open_dead(DLT_EN10MB, ETH_FRAME_MAX)
+		pdumper = pcap_dump_open(descr, 'captura.' + args.interface + '.' + str(int(time.time())) + '.pcap')
 	elif args.tracefile is not False:
 		handle = pcap_open_offline(args.tracefile, errbuf)
 
-	# Abrimos un dumper para volcar el tráfico (si se ha especificado interfaz) 
-	if args.interface is not False:
-		descr = pcap_open_dead(DLT_EN10MB, ETH_FRAME_MAX)
-		pdumper = pcap_dump_open(descr, 'captura.' + args.interface + '.' + str(int(time.time())) + '.pcap')
+		
 
 
 	ret = pcap_loop(handle,50,procesa_paquete,num_paquete)

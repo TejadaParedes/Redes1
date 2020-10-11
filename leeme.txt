@@ -12,8 +12,10 @@
 Comenzamos la práctica y al intentar ejecutar el programa ya aparece
 el primer problema que debemos de afrontar; en MacOS los archivos compartidos
 se guardan con la extension .dylib por lo que en el archivo rc1_pcap.py debemos 
-cambiar la linea pcap = ctypes.cdll.LoadLibrary("libpcap.os") por la misma pero
+cambiar la linea pcap = ctypes.cdll.LoadLibrary("libpcap.so") por la misma pero
 con "libcap.dylib".
+
+Se ha añadido el fichero P1_ej5.pcap que corresponde a la traza creada para el ejercicio5 del apartado de Wireshark.
 
 
 -- Criterios de evaluación --
@@ -24,7 +26,7 @@ con "libcap.dylib".
 
 · Contar paquetes de la interfaz de red -> Realizado: Imprime por pantalla el numero de paquetes capturados al pulsar ctrl-c o al llegar al maximo de paquetes (50).
 
-· Uso de un único "flujo" para traza e interfaz ->
+· Uso de un único "flujo" para traza e interfaz -> Realizado: El programa tiene un unico "flujo" comun para traza e interfaz cuando se va a leer el trafico.
 
 · Almacenar correctamente el tráfico capturado en vivo una traza -> Realizado: Al finalizar la captura se genera un archivo pcap con los paquetes capturados y se ha comprobado que se guardan los archivos correctos mediante wireshark.
 
