@@ -132,16 +132,33 @@ def processARPReply(data:bytes,MAC:bytes)->None:
         Retorno: Ninguno
     '''
     global requestedIP,resolvedMAC,awaitingResponse,cache
-    logging.debug('Función no implentada')    
+    #logging.debug('Función no implentada')    
     #TODO implementar aquí
         
-    macOrg = data[:6]
+    macOrg = data[8:14]
 
     if macOrg != MAC:
         return
 
-    ipOrg = data[6:10]
+    ipOrigen = struct.pack('!I', data[14:18])[0]
+    ipDest = struct.pack('!I', data[24:28])[0]
 
+    macDest = data[18:24]
+
+    if ipDest is not myIP:
+        return
+    
+    with globalLock:
+        if ipOrigen is not requestedIP:
+            return
+
+    with cacheLock:
+        cache[ipOrigen] = macOrg
+
+    with globalLock:
+        resolvedMAC = macOrg
+        awaitingResponse = False
+        requestedIP = None
 
 
 def createARPRequest(ip:int) -> bytes:
@@ -157,7 +174,6 @@ def createARPRequest(ip:int) -> bytes:
     #logging.debug('Función no implementada')
     #TODO implementar aqui
 
-    frame = bytes()
     frame += ARPHeader
     frame += struct.pack('!H', 0x0001)
     frame += myMAC
@@ -181,6 +197,14 @@ def createARPReply(IP:int ,MAC:bytes) -> bytes:
     frame = bytes()
     logging.debug('Función no implementada')
     #TODO implementar aqui
+
+    frame += ARPHeader
+    frame += struct.pack('!H', 0x0001)
+    frame += MAC
+    frame += struct.pack('!I',myIP)
+    frame += bytes([0x00,0x00,0x00,0x00,0x00,0x00])
+    frame += struct.pack('!I',IP)
+
     return frame
 
 
@@ -205,6 +229,8 @@ def process_arp_frame(us:ctypes.c_void_p,header:pcap_pkthdr,data:bytes,srcMac:by
     '''
     logging.debug('Función no implementada')
     #TODO implementar aquí
+
+
 
 
 
@@ -248,6 +274,19 @@ def ARPResolution(ip:int) -> bytes:
             Como estas variables globales se leen y escriben concurrentemente deben ser protegidas con un Lock
     '''
     global requestedIP,awaitingResponse,resolvedMAC
-    logging.debug('Función no implementada')
     #TODO implementar aquí
+    if ip in cache:
+        return cache.get(ip)
+    else:
+        with globalLock:
+            requestedIP = ip
+            awaitingResponse = True
+        request = createARPRequest(ip)
+        for i in range(3):
+            sendEthernetFrame(request, 32, 0x0806, struct.pack('!HI', 0xFFFF, 0XFFFFFFFF))
+            time.sleep(0.01)
+            with globalLock:
+                if awaitingResponse is False:
+                    awaitingResponse = True
+                    return resolvedMAC
     return None
