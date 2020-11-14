@@ -222,10 +222,11 @@ def sendEthernetFrame(data:bytes,len:int,etherType:int,dstMac:bytes) -> int:
     global macAddress,handle
     #logging.debug('Función no implementada')
     trama = bytes()
+    trama += data
     trama += dstMac
     trama += macAddress
     trama += struct.pack('!H', etherType)
-    trama += data
+    
 
     if len(trama) < ETH_FRAME_MIN:
         while len(trama) < ETH_FRAME_MAX:

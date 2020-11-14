@@ -160,6 +160,8 @@ def processARPReply(data:bytes,MAC:bytes)->None:
         awaitingResponse = False
         requestedIP = None
 
+    return
+
 
 def createARPRequest(ip:int) -> bytes:
     '''
@@ -229,7 +231,18 @@ def process_arp_frame(us:ctypes.c_void_p,header:pcap_pkthdr,data:bytes,srcMac:by
     '''
     logging.debug('Función no implementada')
     #TODO implementar aquí
+    ARP_header = data[:6]
 
+    if ARP_header is header:
+        opcode = data[6:8]
+        if opcode is 0x0001:
+            processARPRequest(data, srcMac)
+        elif opcode is 0x0002:
+            processARPReply(data, srcMac)
+        elif opcode is None:
+            return
+    return  
+    
 
 
 
