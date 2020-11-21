@@ -23,6 +23,7 @@ TO_MS = 10
 broadcastAddr = bytes([0xFF]*6)
 #Diccionario que alamacena para un Ethertype dado qué función de callback se debe ejecutar
 upperProtos = {}
+levelInitialized = False
 
 def getHwAddr(interface:str):
     '''
@@ -65,8 +66,11 @@ def process_Ethernet_frame(us:ctypes.c_void_p,header:pcap_pkthdr,data:bytes) -> 
     #DONE: Implementar aquí el código que procesa una trama Ethernet en recepción
     dirDestino = data[0:6]
     dirOrigen = data[6:12]
+    print(dirOrigen)
     etherType = struct.unpack('!H', data[12:14])[0]
 
+    if dirDestino is not broadcastAddr or dirDestino is not dirOrigen:
+    	return
     callback = upperProtos[etherType]
 
     if callback == None:
@@ -138,7 +142,8 @@ def registerCallback(callback_func: Callable[[ctypes.c_void_p,pcap_pkthdr,bytes]
     #logging.debug('Función no implementada')
     
     if ethertype is None or callback_func is None:
-        return 
+    	
+    	return 
     
     upperProtos[ethertype] = callback_func
 
@@ -164,6 +169,7 @@ def startEthernetLevel(interface:str) -> int:
     global macAddress,handle,levelInitialized,recvThread
     handle = None
     errbuf = bytearray()
+
 
     if levelInitialized is True :
         return -1
@@ -228,18 +234,19 @@ def sendEthernetFrame(data:bytes,len:int,etherType:int,dstMac:bytes) -> int:
     trama += struct.pack('!H', etherType)
     
 
-    if len(trama) < ETH_FRAME_MIN:
-        while len(trama) < ETH_FRAME_MAX:
-            trama += 0
+    if len < ETH_FRAME_MIN:
+        while len < ETH_FRAME_MAX:
+            trama += bytes(0)
+            len = len + 1
     
-    if len(trama) > ETH_FRAME_MAX:
+    if len > ETH_FRAME_MAX:
         return -1
 
     send = pcap_inject(handle, trama, len)
         
     if send == None:
-        return -1
+    	return -1
     else:
-        return 0
+    	return 0
     
         

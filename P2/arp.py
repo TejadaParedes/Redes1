@@ -91,6 +91,7 @@ def processARPRequest(data:bytes,MAC:bytes)->None:
     '''
     #logging.debug('Función no implementada')
     #TODO implementar aquí
+    print('huidhjdghd')
 
     macOrg = data[:6]
 
@@ -175,7 +176,8 @@ def createARPRequest(ip:int) -> bytes:
     frame = bytes()
     #logging.debug('Función no implementada')
     #TODO implementar aqui
-
+    print('mi mac')
+    print(myMAC)
     frame += ARPHeader
     frame += struct.pack('!H', 0x0001)
     frame += myMAC
@@ -197,14 +199,14 @@ def createARPReply(IP:int ,MAC:bytes) -> bytes:
     '''
     global myMAC,myIP
     frame = bytes()
-    logging.debug('Función no implementada')
+    #logging.debug('Función no implementada')
     #TODO implementar aqui
 
     frame += ARPHeader
-    frame += struct.pack('!H', 0x0001)
-    frame += MAC
+    frame += struct.pack('!H', 0x0002)
+    frame += myMAC
     frame += struct.pack('!I',myIP)
-    frame += bytes([0x00,0x00,0x00,0x00,0x00,0x00])
+    frame += MAC
     frame += struct.pack('!I',IP)
 
     return frame
@@ -229,10 +231,9 @@ def process_arp_frame(us:ctypes.c_void_p,header:pcap_pkthdr,data:bytes,srcMac:by
             -srcMac: MAC origen de la trama Ethernet que se ha recibido
         Retorno: Ninguno
     '''
-    logging.debug('Función no implementada')
+    #logging.debug('Función no implementada')
     #TODO implementar aquí
     ARP_header = data[:6]
-
     if ARP_header is header:
         opcode = data[6:8]
         if opcode is 0x0001:
@@ -253,7 +254,7 @@ def initARP(interface:str) -> int:
         Descripción: Esta función construirá inicializará el nivel ARP. Esta función debe realizar, al menos, las siguientes tareas:
             -Registrar la función del callback process_arp_frame con el Ethertype 0x0806
             -Obtener y almacenar la dirección MAC e IP asociadas a la interfaz especificada
-            -Realizar una petición ARP gratuita y comprobar si la IP propia ya está asignada. En caso positivo se debe devolver error.
+            -Realizar una petición ARP gratuita y comprobar si la IP propia ya está asignada. En caso positivo se debe devolver error. 
             -Marcar la variable de nivel ARP inicializado a True
     '''
     global myIP,myMAC,arpInitialized
@@ -262,7 +263,7 @@ def initARP(interface:str) -> int:
     registerCallback(process_arp_frame, 0x0806)
     myMAC = getHwAddr(interface)
     myIP = getIP(interface)
-    if ARPResolution(myIP) is None:
+    if ARPResolution(myIP) is not None:
         return -1
     arpInitialized = True
     return 0
@@ -296,10 +297,25 @@ def ARPResolution(ip:int) -> bytes:
             awaitingResponse = True
         request = createARPRequest(ip)
         for i in range(3):
-            sendEthernetFrame(request, 32, 0x0806, struct.pack('!HI', 0xFFFF, 0XFFFFFFFF))
+            sendEthernetFrame(request, len(request), 0x0806, struct.pack('!HI', 0xFFFF, 0XFFFFFFFF))
             time.sleep(0.01)
             with globalLock:
                 if awaitingResponse is False:
                     awaitingResponse = True
                     return resolvedMAC
-    return None
+
+        return None
+        '''requestedIP = ip
+        awaitingResponse = True
+        request = createARPRequest(ip)
+        sendEthernetFrame(request, len(request), 0x0806, struct.pack('!HI', 0xFFFF, 0XFFFFFFFF))
+        time.sleep(0.01)
+
+        for i in range(3):
+            with globalLock:
+                if awaitingResponse is False:
+                    #awaitingResponse = True
+                    return resolvedMAC
+            sendEthernetFrame(request, len(request), 0x0806, struct.pack('!HI', 0xFFFF, 0XFFFFFFFF))
+            time.sleep(0.01)
+        return None'''
