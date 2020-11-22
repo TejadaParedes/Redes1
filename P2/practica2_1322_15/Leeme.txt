@@ -1,0 +1,36 @@
+ 
+###################################################################
+# Autores: Alejandro Tejada Paredes & Federico Perez Fernandez    #
+# Fecha: 23-Nov-2020                                              #
+# Grupo: 1322                                                     #
+# Pareja: 15                                                      #
+# Brief: Practica 2 de REDES - Ethernet y ARP 					  #
+###################################################################
+
+
+-- Comentarios --
+
+A veces pasa que cuando se pregunta por la otra interfaz desde un nodo, se imprime por pantalla que la direccion no ha sido encontrada sin emabrgo, esta si que ha sido encontrada y es guardada en la cache, esto se puede comprobar si despues de este mensaje se introduce p por la terminal. Pero nos dimos cuenta que quizas a podido ser por el time.sleep que tenia como argumento 0.01 y lo hemos cambiado a 0.1
+
+
+-- Criterios de evaluación --
+
+· Normativa de entrega cumplida en su totalidad -> Realizado: Relecturas de la práctica y multiples consultas a las primitivas marcadas en el enunciado y archivos de ayuda de python.
+
+· Recibir tramas Ethernet, realizar comprobaciones y llamar correctamente a la función de callback de nivel superior -> Realizado: La interfaces que se comunican para resolver las peticiones ARP reciben las tramas correctamente desde el metodo process_Ethernet_frame que invocara a un metodo para la resolucion de la petición ARP.
+
+· Enviar tramas Ethernet  correctamente -> Realizado: La interfaces que se comunican para resolver las peticiones ARP envian las tramas correctamente desde el metodo sendEthernetFrame.
+
+· Enviar correctamente peticiones ARP  -> Realizado: La infterfaz primero crea la petición ARP, con los campos correspondientes, para que luego se construya la trama Ethernet y sea enviado por la red.
+
+· Procesar correctamente peticiones ARP recibidas -> Realizado: Las interfaz que tiene como ip la ip destino de la petición ARP es la encargada de procesar la petición ARP recibida y generar una respuesta ARP donde se encontrara su MAC que posteriormente será envido como trama Ethernet a la red.
+
+· Enviar correctamente respuestas ARP  -> Realizado: La inferfaz que tiene que responder crea la respuesta ARP, y en ella se guarda la MAC por la que pregunta la interfaz que envia la petición ARP.
+
+· Procesar correctamente respuestas ARP -> Realizado: La interfaz que recibe la respuesta obtiene cada uno de los campos de la respueta ARP comprobando que el receptor es su interfaz y obteniendo la MAC de la interfaz por la que ha preguntado.
+
+· Manejo correcto de la caché ARP -> Realizado: Dentro del programa en el metodo processARPReply se guardan los pares de direcciones IP y MAC en la calle. En el método ARPResolution en caso de que una IP ya este registrada en la cache, la MAC de dicha interfaz será obtenida desde la cache, esto se puede comprobar si intrudcimos un print dentro de la condición en ese metodo y se puede ver como si entra en la condición.
+
+· Uso correcto de Locks -> Realizado: Tanto el lock globalLock y el lock cacheLock son utilizados en el programa, el primero se utiliza generalmente cuando se va a trabajar con la variable awaitingResponse dentro de los metodos processARPReply y ARPResolution, el segundo se utiliza para guardar datos en la cahe en el metodo processARPReply.
+
+· Realiza correctamente el ARP gratuito -> Realizado: Cuando cambiamos la direccion ip de nuestra segunda interfaz a 10.0.0.1 y procedemos a ejecutar los scripts primero desde el nodo2 y luego en el nodo1, en esete nos salta el siguiente mensaje por pantalla: "[2020-11-22 17:43:12,398 ERROR]	ARP no inicializado" y esto se debe a que ya existe una interfaz inicializada a esa ip.
