@@ -11,7 +11,8 @@ import socket
 import struct
 from binascii import hexlify
 import struct 
-import threading 
+import threading
+import binascii 
 #Tamaño máximo de una trama Ethernet (para las prácticas)
 ETH_FRAME_MAX = 1514
 #Tamaño mínimo de una trama Ethernet
@@ -64,17 +65,19 @@ def process_Ethernet_frame(us:ctypes.c_void_p,header:pcap_pkthdr,data:bytes) -> 
     '''
     #logging.debug('Trama nueva. Función no implementada')
     #DONE: Implementar aquí el código que procesa una trama Ethernet en recepción
-    dirDestino = data[0:6]
+    global macAddress
+    dirDestino = data[:6]
     dirOrigen = data[6:12]
-    print(dirOrigen)
     etherType = struct.unpack('!H', data[12:14])[0]
 
-    if dirDestino is not broadcastAddr or dirDestino is not dirOrigen:
+
+    if dirDestino != broadcastAddr and dirDestino != macAddress:
     	return
     callback = upperProtos[etherType]
 
     if callback == None:
         return
+
     callback(us, header, data[14:], dirOrigen)
     
 
@@ -109,7 +112,7 @@ class rxThread(threading.Thread):
             pcap_loop(handle,-1,process_frame,None)
     def stop(self):
         global handle
-        #Para la ejecución de pcap_loop
+        #Para la ejecución de pcap_loopAlianza
         if handle is not None:
             pcap_breakloop(handle)
 
@@ -141,9 +144,6 @@ def registerCallback(callback_func: Callable[[ctypes.c_void_p,pcap_pkthdr,bytes]
     #upperProtos es el diccionario que relaciona función de callback y ethertype
     #logging.debug('Función no implementada')
     
-    if ethertype is None or callback_func is None:
-    	
-    	return 
     
     upperProtos[ethertype] = callback_func
 
@@ -201,14 +201,17 @@ def stopEthernetLevel()->int:
         Argumentos: Ninguno
         Retorno: 0 si todo es correcto y -1 en otro caso
     '''
-    recvThread = rxThread()
+    #recvThread = rxThread()
     recvThread.stop()
+
+    if handle is None:
+    	return -1
     pcap_close(handle)
     levelInitialized = False
     #logging.debug('Función no implementada')
     return 0
     
-def sendEthernetFrame(data:bytes,len:int,etherType:int,dstMac:bytes) -> int:
+def sendEthernetFrame(data:bytes,leng:int,etherType:int,dstMac:bytes) -> int:
     '''
         Nombre: sendEthernetFrame
         Descripción: Esta función construirá una trama Ethernet con lo datos recibidos y la enviará por la interfaz de red. 
@@ -228,21 +231,23 @@ def sendEthernetFrame(data:bytes,len:int,etherType:int,dstMac:bytes) -> int:
     global macAddress,handle
     #logging.debug('Función no implementada')
     trama = bytes()
-    trama += data
     trama += dstMac
     trama += macAddress
     trama += struct.pack('!H', etherType)
-    
+    trama += data
 
-    if len < ETH_FRAME_MIN:
-        while len < ETH_FRAME_MAX:
-            trama += bytes(0)
-            len = len + 1
+
     
-    if len > ETH_FRAME_MAX:
+    if leng+14 < ETH_FRAME_MIN:
+        for i in range(leng+14, ETH_FRAME_MIN):
+            trama += struct.pack('!B', 0)
+            
+    
+    if leng+14 > ETH_FRAME_MAX:
         return -1
 
-    send = pcap_inject(handle, trama, len)
+
+    send = pcap_inject(handle, trama, len(trama))
         
     if send == None:
     	return -1
