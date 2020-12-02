@@ -198,11 +198,24 @@ if __name__ == "__main__":
     #Analisis de protocolos
     #TODO: Añadir código para obtener el porcentaje de tráfico IPv4 y NO-IPv4
     codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e frame.number -Y \'ip\''.format(args.tracefile))
-    nlineas = 0
+    nlineasip = 0
     for linea in salida.split('\n'):
         if linea != '':
             print(linea)
-            nlineas +=1
+            nlineasip +=1
+
+    codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e frame.number -Y \'!ip\''.format(args.tracefile))
+    nlineasnoip = 0
+    for linea in salida.split('\n'):
+        if linea != '':
+            print(linea)
+            nlineasnoip +=1
+    #calcular porcentajes
+    total = nlineasnoip + nlineasip
+    pintarTarta(etiquetas,[(100*nlineasnoip)/total,(100*nlineasip)/total],'Porcentaje de tráfico IPv4 y NO-IPv4','Porcentaje de tráfico IPv4 y NO-IPv4')
+
+
+
     #TODO: Añadir código para obtener el porcentaje de tráfico TPC,UDP y OTROS sobre el tráfico IP
    
     #Obtención de top direcciones IP
