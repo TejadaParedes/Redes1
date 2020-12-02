@@ -22,6 +22,8 @@ warnings.filterwarnings("ignore")
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 
+
+
 '''
     Función: calcularECDF
     Entrada: 
@@ -195,7 +197,12 @@ if __name__ == "__main__":
 
     #Analisis de protocolos
     #TODO: Añadir código para obtener el porcentaje de tráfico IPv4 y NO-IPv4
-
+    codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e frame.number -Y \'ip\''.format(args.tracefile))
+    nlineas = 0
+    for linea in salida.split('\n'):
+        if linea != '':
+            print(linea)
+            nlineas +=1
     #TODO: Añadir código para obtener el porcentaje de tráfico TPC,UDP y OTROS sobre el tráfico IP
    
     #Obtención de top direcciones IP
