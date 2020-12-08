@@ -4,6 +4,8 @@
     Programa principal que realiza el análisis de tráfico sobre una traza PCAP.
     Autor: Javier Ramos <javier.ramos@uam.es>
     2020 EPS-UAM
+    practica3.py --trace p3.pcap --mac 00:11:88:cc:33:78 --ip_flujo 70.39.159.111 --port_flujo_udp 8343
+
 '''
 
 
@@ -184,53 +186,120 @@ if __name__ == "__main__":
         os.mkdir('resultados')
   
     #Ejemplo de ejecución de comando tshark y parseo de salida. Se parte toda la salida en líneas usando el separador \n
-    logging.info('Ejecutando tshark para obtener el número de paquetes')
-    codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e frame.number'.format(args.tracefile))
+    '''logging.info('Ejecutando tshark para obtener el número de paquetes')
+    codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e frame.protocols -Y \'udp\''.format(args.tracefile))
     nlineas = 0
+    aux = 0
     for linea in salida.split('\n'):
         if linea != '':
-            print(linea)
             nlineas +=1
 
-    print('{} paquetes en la traza {}'.format(nlineas,args.tracefile))
+    for linea in salida.split('\n'):
+        for p in linea.split(':'):
+            if p == 'udp':
+                aux +=1
+ 
+
+    print('{} paquetes en la traza {} y count {}'.format(nlineas,args.tracefile, aux))'''
     
 
     #Analisis de protocolos
-    #TODO: Añadir código para obtener el porcentaje de tráfico IPv4 y NO-IPv4
+    #TODO: Añadir código para obtener el porcentaje de tráfico IPv4 y NO-IPv4 SE PUEDE MEJORAR VIENDO EL PROTOCOLO
+    '''
     codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e frame.number -Y \'ip\''.format(args.tracefile))
     nlineasip = 0
     for linea in salida.split('\n'):
         if linea != '':
-            print(linea)
             nlineasip +=1
 
     codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e frame.number -Y \'!ip\''.format(args.tracefile))
     nlineasnoip = 0
     for linea in salida.split('\n'):
         if linea != '':
-            print(linea)
             nlineasnoip +=1
     #calcular porcentajes
     total = nlineasnoip + nlineasip
-    pintarTarta(etiquetas,[(100*nlineasnoip)/total,(100*nlineasip)/total],'Porcentaje de tráfico IPv4 y NO-IPv4','Porcentaje de tráfico IPv4 y NO-IPv4')
+    pintarTarta(['NO-IPv4', 'IPv4'],[(100*nlineasnoip)/total,(100*nlineasip)/total],'Porcentaje de tráfico IPv4 y NO-IPv4.png','Porcentaje de tráfico IPv4 y NO-IPv4')
+    '''
 
 
 
     #TODO: Añadir código para obtener el porcentaje de tráfico TPC,UDP y OTROS sobre el tráfico IP
-   
+    '''
+    codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e frame.protocols'.format(args.tracefile))
+    nudp = 0
+    ntcp = 0
+    total = 0
+    for linea in salida.split('\n'):
+        for p in linea.split(':'):
+            if p == 'udp':
+                nudp +=1
+            elif p == 'tcp':
+                ntcp +=1
+        if linea != '':
+            total += 1
+    otros = total - (ntcp + nudp)
+    pintarTarta(['UDP', 'TCP', 'OTROS'],[100*nudp/total, 100*ntcp/total, 100*otros/total],'Porcentaje de tráfico TPC,UDP y OTROS sobre el tráfico IP.png','orcentaje de tráfico TPC,UDP y OTROS sobre el tráfico IP')
+    '''
+
     #Obtención de top direcciones IP
     #TODO: Añadir código para obtener los datos y generar la gráfica de top IP origen por bytes
     
-    
+    codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e ip.src -e frame.len -Y \'ip\''.format(args.tracefile))
+
+    dic = {}
+    for linea in salida.split('\n'):
+        if linea != '':
+            celda = linea.split('\t')
+            if celda[0] in dic:
+                tam = int(dic.get(celda[0])) + int(celda[1])
+                dic[celda[0]] = tam
+            else:
+                dic[celda[0]] = int(celda[1])
+
+
+
+        
     
     #TODO: Añadir código para obtener los datos y generar la gráfica de top IP origen por paquetes
    
+    codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e ip.src -Y \'ip\''.format(args.tracefile))
+    dic = {}
+    for linea in salida.split('\n'):
+        if linea != '':
+            if linea in dic:
+                tam = dic.get(linea) + 1
+                dic[linea] = tam
+            else:
+                dic[linea] = 1
+
+
 
     #TODO: Añadir código para obtener los datos y generar la gráfica de top IP destino por paquetes
+
+    codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e ip.dst -e frame.len -Y \'ip\''.format(args.tracefile))
+
+    dic = {}
+    for linea in salida.split('\n'):
+        if linea != '':
+            celda = linea.split('\t')
+            if celda[0] in dic:
+                tam = int(dic.get(celda[0])) + int(celda[1])
+                dic[celda[0]] = tam
+            else:
+                dic[celda[0]] = int(celda[1])
    
 
     #TODO: Añadir código para obtener los datos y generar la gráfica de top IP destino por bytes
-   
+    codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e ip.dst -Y \'ip\''.format(args.tracefile))
+    dic = {}
+    for linea in salida.split('\n'):
+        if linea != '':
+            if linea in dic:
+                tam = dic.get(linea) + 1
+                dic[linea] = tam
+            else:
+                dic[linea] = 1
     
     #Obtención de top puertos TCP
     #TODO: Añadir código para obtener los datos y generar la gráfica de top puerto origen TCP por bytes
