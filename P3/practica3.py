@@ -187,7 +187,8 @@ if __name__ == "__main__":
         os.mkdir('resultados')
 
     #Ejemplo de ejecución de comando tshark y parseo de salida. Se parte toda la salida en líneas usando el separador \n
-    '''logging.info('Ejecutando tshark para obtener el número de paquetes')
+    '''
+    logging.info('Ejecutando tshark para obtener el número de paquetes')
     codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e frame.protocols -Y \'udp\''.format(args.tracefile))
     nlineas = 0
     aux = 0
@@ -201,12 +202,12 @@ if __name__ == "__main__":
                 aux +=1
 
 
-    print('{} paquetes en la traza {} y count {}'.format(nlineas,args.tracefile, aux))'''
+    print('{} paquetes en la traza {} y count {}'.format(nlineas,args.tracefile, aux))
+    '''
 
 
     #Analisis de protocolos
-    #TODO: Añadir código para obtener el porcentaje de tráfico IPv4 y NO-IPv4 SE PUEDE MEJORAR VIENDO EL PROTOCOLO
-    '''
+
     logging.info('Ejecutando tshark para obtener el porcentaje de tráfico IPv4 y NO-IPv4')
     codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e frame.number -Y \'ip\''.format(args.tracefile))
     nlineasip = 0
@@ -223,10 +224,8 @@ if __name__ == "__main__":
     total = nlineasnoip + nlineasip
     pintarTarta(['NO-IPv4', 'IPv4'],[(100*nlineasnoip)/total,(100*nlineasip)/total],'Porcentaje de tráfico IPv4 y NO-IPv4.png','Porcentaje de tráfico IPv4 y NO-IPv4')
     logging.info('###### DONE!')
-    '''
 
-    #TODO: Añadir código para obtener el porcentaje de tráfico TPC,UDP y OTROS sobre el tráfico IP
-    '''
+
     logging.info('Ejecutando tshark para obtener el porcentaje de tráfico TPC,UDP y OTROS sobre el tráfico IP')
     codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e frame.protocols'.format(args.tracefile))
     nudp = 0
@@ -246,7 +245,7 @@ if __name__ == "__main__":
     
 
     #Obtención de top direcciones IP
-    #TODO: Añadir código para obtener los datos y generar la gráfica de top IP origen por bytes
+
     logging.info('Ejecutando tshark para obtener los datos del puerto origen IP por bytes')
     codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e ip.src -e frame.len -Y \'ip\''.format(args.tracefile))
 
@@ -269,7 +268,6 @@ if __name__ == "__main__":
     pintarTarta(top5.keys(), lista,'Top5 IP origen por bytes.png','Top5 IP origen por bytes')
     logging.info('###### DONE!')
     
-    #TODO: Añadir código para obtener los datos y generar la gráfica de top IP origen por paquetes
     logging.info('Ejecutando tshark para obtener los datos del puerto origen IP por paquetes')
     codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e ip.src -Y \'ip\''.format(args.tracefile))
     dic = {}
@@ -290,8 +288,6 @@ if __name__ == "__main__":
     pintarTarta(top5.keys(), lista,'Top5 IP origen por paquetes.png','Top5 IP origen por paquetes')
     logging.info('###### DONE!')
     
-    '''
-    #TODO: Añadir código para obtener los datos y generar la gráfica de top IP destino por paquetes
     logging.info('Ejecutando tshark para obtener los datos del puerto destino IP por paquetes')
     codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e ip.dst -Y \'ip\''.format(args.tracefile))
     dic = {}
@@ -311,8 +307,7 @@ if __name__ == "__main__":
 
     pintarTarta(top5.keys(), lista,'Top5 IP destino por paquetes.png','Top5 IP destino por paquetes')
     logging.info('###### DONE!')
-    '''
-    #TODO: Añadir código para obtener los datos y generar la gráfica de top IP destino por bytes
+
     logging.info('Ejecutando tshark para obtener los datos del puerto destino IP por bytes')
     codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e ip.dst -e frame.len -Y \'ip\''.format(args.tracefile))
 
@@ -336,7 +331,7 @@ if __name__ == "__main__":
     logging.info('###### DONE!')
 
     #Obtención de top puertos TCP
-    #TODO: Añadir código para obtener los datos y generar la gráfica de top puerto origen TCP por bytes
+
     logging.info('Ejecutando tshark para obtener los datos del puerto origen TCP por bytes')
     codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e tcp.srcport -e frame.len -Y \'tcp\''.format(args.tracefile))
 
@@ -516,10 +511,8 @@ if __name__ == "__main__":
     pintarTarta(top5.keys(), lista,'Top5 UDP destino por paquetes.png','Top5 UDP destino por paquetes')
     logging.info('###### DONE!')
 
-    '''
-    '''
     #Obtención de series temporales de ancho de banda
-    #TODO: Añadir código para obtener los datos y generar la gráfica de la serie temporal de ancho de banda con MAC como origen
+
     logging.info('Ejecutando tshark para obtener el ancho de banda con la direccion MAC como origen')
     codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e frame.number -e frame.len -e frame.time_epoch -Y \'eth.src == 00:11:88:CC:33:78\''.format(args.tracefile))
     nLineas = 0
@@ -549,7 +542,6 @@ if __name__ == "__main__":
     pintarSerieTemporal(xaxis, serie, "Ancho_Banda_MACOrigen", "Ancho de banda", "tiempo(s)", "bytes/segundo")
     logging.info('###### DONE!')
 
-    #TODO: Añadir código para obtener los datos y generar la gráfica de la serie temporal de ancho de banda con MAC como destino
     logging.info('Ejecutando tshark para obtener el ancho de banda con la direccion MAC como destino')
     codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e frame.number -e frame.len -e frame.time_epoch -Y \'eth.dst == 00:11:88:CC:33:78\''.format(args.tracefile))
     nLineas = 0
@@ -578,13 +570,49 @@ if __name__ == "__main__":
 
     xaxis = list(range(prime_time, prime_time + tam))
     pintarSerieTemporal(xaxis, serie, "Ancho_Banda_MACDestino", "Ancho de banda", "tiempo(s)", "bytes/segundo")
-    logging.info('###### DONE!')'''
+    logging.info('###### DONE!')
 
     #Obtención de las ECDF de tamaño de los paquetes
-    #TODO: Añadir código para obtener los datos y generar la gráfica de la ECDF de los tamaños de los paquetes a nivel 2
+    
+    logging.info('Ejecutando tshark para obtener la cantidad de veces que se repite cada tamanyo de paquete')
+    codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e frame.len -Y \'eth.addr == 00:11:88:CC:33:78\''.format(args.tracefile))
 
+    lista_tamanyoPaquetes = []
+    for linea in salida.split('\n'):
+        linea = linea.strip()
+        if linea != '':
+            lista_tamanyoPaquetes.append(int(linea))
+    pintarECDF(lista_tamanyoPaquetes, "ECDF_tamaño_paquetes_nivel2", "ECDF_tamaño_paquetes_nivel2", "tamaño paquete (bytes)", "probabilidad")
+    logging.info('###### DONE!')
 
     #Obtención de las ECDF de tamaño de los tiempos entre llegadas
-    #TODO: Añadir código para obtener los datos y generar la gráfica de la ECDF de los tiempos entre llegadas para el flujo TCP
+    
+    logging.info('Ejecutando tshark para obtener el tamaño de los tiempos entre llegadas de los paquetes')
+    codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e frame.time_delta -Y \'tcp\''.format(args.tracefile))
+    
+    lista_tiempoPaquetes = []
+    primera_linea = True
+    tiempo_previo = 0.0
+    for linea in salida.split('\n'):
+        linea = linea.strip()
+        if linea != '':
+            lista_tiempoPaquetes.append(float(linea))
 
-    #TODO: Añadir código para obtener los datos y generar la gráfica de la ECDF de los tiempos entre llegadas para el flujo UDP
+    pintarECDF(lista_tiempoPaquetes[:5], "ECDF_tiempo_paquetes_TCP_muestrarioReducido", "ECDF tiempo paquetes TCP", "tiempo entre paquete (s)", "probabilidad")
+    pintarECDF(lista_tiempoPaquetes, "ECDF_tiempo_paquetes_TCP", "ECDF tiempo paquetes TCP", "tiempo entre paquete (s)", "probabilidad")
+    logging.info('###### DONE!')
+
+    logging.info('Ejecutando tshark para obtener el tamaño de los tiempos entre llegadas de los paquetes')
+    codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e frame.time_delta -Y \'udp\''.format(args.tracefile))
+    
+    lista_tiempoPaquetes = []
+    primera_linea = True
+    tiempo_previo = 0.0
+    for linea in salida.split('\n'):
+        inea = linea.strip()
+        if linea != '':
+            lista_tiempoPaquetes.append(float(linea))
+
+    pintarECDF(lista_tiempoPaquetes[:5], "ECDF_tiempo_paquetes_UDP_muestrarioReducido", "ECDF tiempo paquetes UDP", "tiempo entre paquete (s)", "probabilidad")
+    pintarECDF(lista_tiempoPaquetes, "ECDF_tiempo_paquetes_UDP", "ECDF tiempo paquetes UDP", "tiempo entre paquete (s)", "probabilidad")
+    logging.info('###### DONE!')
