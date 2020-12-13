@@ -269,7 +269,6 @@ if __name__ == "__main__":
     pintarTarta(top5.keys(), lista,'Top5 IP origen por bytes.png','Top5 IP origen por bytes')
     logging.info('###### DONE!')
     
-
     #TODO: Añadir código para obtener los datos y generar la gráfica de top IP origen por paquetes
     logging.info('Ejecutando tshark para obtener los datos del puerto origen IP por paquetes')
     codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e ip.src -Y \'ip\''.format(args.tracefile))
@@ -290,6 +289,7 @@ if __name__ == "__main__":
     
     pintarTarta(top5.keys(), lista,'Top5 IP origen por paquetes.png','Top5 IP origen por paquetes')
     logging.info('###### DONE!')
+    
     '''
     #TODO: Añadir código para obtener los datos y generar la gráfica de top IP destino por paquetes
     logging.info('Ejecutando tshark para obtener los datos del puerto destino IP por paquetes')
@@ -309,9 +309,9 @@ if __name__ == "__main__":
     for e in lista:
         e = 100*e/total
 
-    #pintarTarta(top5.keys(), lista,'Top5 IP destino por paquetes.png','Top5 IP destino por paquetes')
+    pintarTarta(top5.keys(), lista,'Top5 IP destino por paquetes.png','Top5 IP destino por paquetes')
     logging.info('###### DONE!')
-    
+    '''
     #TODO: Añadir código para obtener los datos y generar la gráfica de top IP destino por bytes
     logging.info('Ejecutando tshark para obtener los datos del puerto destino IP por bytes')
     codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e ip.dst -e frame.len -Y \'ip\''.format(args.tracefile))
@@ -516,6 +516,7 @@ if __name__ == "__main__":
     pintarTarta(top5.keys(), lista,'Top5 UDP destino por paquetes.png','Top5 UDP destino por paquetes')
     logging.info('###### DONE!')
 
+    '''
     '''
     #Obtención de series temporales de ancho de banda
     #TODO: Añadir código para obtener los datos y generar la gráfica de la serie temporal de ancho de banda con MAC como origen
