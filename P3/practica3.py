@@ -23,6 +23,7 @@ import warnings
 warnings.filterwarnings("ignore")
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
+from collections import Counter
 
 
 
@@ -240,9 +241,9 @@ if __name__ == "__main__":
         if linea != '':
             total += 1
     otros = total - (ntcp + nudp)
-    pintarTarta(['UDP', 'TCP', 'OTROS'],[100*nudp/total, 100*ntcp/total, 100*otros/total],'Porcentaje de tráfico TPC,UDP y OTROS sobre el tráfico IP.png','orcentaje de tráfico TPC,UDP y OTROS sobre el tráfico IP')
+    pintarTarta(['UDP', 'TCP', 'OTROS'],[100*nudp/total, 100*ntcp/total, 100*otros/total],'Porcentaje de tráfico TPC,UDP y OTROS sobre el tráfico IP.png','Porcentaje de tráfico TPC,UDP y OTROS sobre el tráfico IP')
     logging.info('###### DONE!')
-    '''
+    
 
     #Obtención de top direcciones IP
     #TODO: Añadir código para obtener los datos y generar la gráfica de top IP origen por bytes
@@ -250,6 +251,7 @@ if __name__ == "__main__":
     codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e ip.src -e frame.len -Y \'ip\''.format(args.tracefile))
 
     dic = {}
+    top5 = {}
     for linea in salida.split('\n'):
         if linea != '':
             celda = linea.split('\t')
@@ -258,35 +260,56 @@ if __name__ == "__main__":
                 dic[celda[0]] = tam
             else:
                 dic[celda[0]] = int(celda[1])
+    top5 = dict(Counter(dic).most_common(5))
+    total = sum(top5.values())
+    lista = top5.values()
+    for e in lista:
+    	e = 100*e/total
+
+    pintarTarta(top5.keys(), lista,'Top5 IP origen por bytes.png','Top5 IP origen por bytes')
     logging.info('###### DONE!')
+    '''
 
     #TODO: Añadir código para obtener los datos y generar la gráfica de top IP origen por paquetes
-    logging.info('Ejecutando tshark para obtener los datos del puerto origen IP por paquetes')
-    codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e ip.src -Y \'ip\''.format(args.tracefile))
+	logging.info('Ejecutando tshark para obtener los datos del puerto origen IP por paquetes')
+	codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e ip.src -Y \'ip\''.format(args.tracefile))
+	dic = {}
+	top5 = {}
+	for linea in salida.split('\n'):
+		if linea != '':
+			if linea in dic:
+				tam = dic.get(linea) + 1
+				dic[linea] = tam
+			else:
+				dic[linea] = 1
+	top5 = dict(Counter(dic).most_common(5))
+	total = sum(top5.values())
+	lista = top5.values()
+	for e in lista:
+		e = 100*e/total
 
-    dic = {}
-    for linea in salida.split('\n'):
-        if linea != '':
-            if linea in dic:
-                tam = dic.get(linea) + 1
-                dic[linea] = tam
-            else:
-                dic[linea] = 1
-    logging.info('###### DONE!')
+	pintarTarta(top5.keys(), lista,'Top5 IP origen por paquetes.png','Top5 IP origen por paquetes')
+	logging.info('###### DONE!')
 
     #TODO: Añadir código para obtener los datos y generar la gráfica de top IP destino por paquetes
-    logging.info('Ejecutando tshark para obtener los datos del puerto destino IP por paquetes')
-    codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e ip.dst -e frame.len -Y \'ip\''.format(args.tracefile))
-
-    dic = {}
+	logging.info('Ejecutando tshark para obtener los datos del puerto destino IP por paquetes')
+	codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e ip.dst -e frame.len -Y \'ip\''.format(args.tracefile))
+	dic = {}
+	top5 = {}
     for linea in salida.split('\n'):
-        if linea != '':
-            celda = linea.split('\t')
-            if celda[0] in dic:
-                tam = int(dic.get(celda[0])) + int(celda[1])
-                dic[celda[0]] = tam
+    	if linea != '':
+        	if linea in dic:
+            	tam = dic.get(linea) + 1
+            	dic[linea] = tam
             else:
-                dic[celda[0]] = int(celda[1])
+    			dic[linea] = 1
+    top5 = dict(Counter(dic).most_common(5))
+    total = sum(top5.values())
+    lista = top5.values()
+    for e in lista:
+    	e = 100*e/total
+
+    pintarTarta(top5.keys(), lista,'Top5 IP destino por paquetes.png','Top5 IP destino por paquetes')
     logging.info('###### DONE!')
 
     #TODO: Añadir código para obtener los datos y generar la gráfica de top IP destino por bytes
@@ -294,13 +317,22 @@ if __name__ == "__main__":
     codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e ip.dst -Y \'ip\''.format(args.tracefile))
 
     dic = {}
+    top5 = {}
     for linea in salida.split('\n'):
-        if linea != '':
-            if linea in dic:
-                tam = dic.get(linea) + 1
-                dic[linea] = tam
-            else:
-                dic[linea] = 1
+    	if linea != '':
+    		celda = linea.split('\t')
+    		if celda[0] in dic:
+    			tam = int(dic.get(celda[0])) + int(celda[1])
+    			dic[celda[0]] = tam
+    		else:
+    			dic[celda[0]] = int(celda[1])
+    top5 = dict(Counter(dic).most_common(5))
+    total = sum(top5.values())
+    lista = top5.values()
+    for e in lista:
+    	e = 100*e/total
+
+    pintarTarta(top5.keys(), lista,'Top5 IP destino por bytes.png','Top5 IP destino por bytes')
     logging.info('###### DONE!')
 
     #Obtención de top puertos TCP
@@ -309,6 +341,7 @@ if __name__ == "__main__":
     codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e tcp.srcport -e frame.len -Y \'tcp\''.format(args.tracefile))
 
     dic = {}
+    top5 = {}
     for linea in salida.split('\n'):
         if linea != '':
             celda = linea.split('\t')
@@ -317,6 +350,13 @@ if __name__ == "__main__":
                 dic[celda[0]] = tam
             else:
                 dic[celda[0]] = int(celda[1])
+    top5 = dict(Counter(dic).most_common(5))
+    total = sum(top5.values())
+    lista = top5.values()
+    for e in lista:
+    	e = 100*e/total
+
+    pintarTarta(top5.keys(), lista,'Top5 TCP origen por bytes.png','Top5 TCP origen por bytes')
     logging.info('###### DONE!')
 
     #TODO: Añadir código para obtener los datos y generar la gráfica de top puerto origen TCP por paquetes
@@ -324,6 +364,7 @@ if __name__ == "__main__":
     codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e tcp.srcport -Y \'tcp\''.format(args.tracefile))
 
     dic = {}
+    top5 = {}
     for linea in salida.split('\n'):
         if linea != '':
             if linea in dic:
@@ -331,35 +372,58 @@ if __name__ == "__main__":
                 dic[linea] = tam
             else:
                 dic[linea] = 1
+    top5 = dict(Counter(dic).most_common(5))
+    total = sum(top5.values())
+    lista = top5.values()
+    for e in lista:
+    	e = 100*e/total
+
+    pintarTarta(top5.keys(), lista,'Top5 TCP origen por paquetes.png','Top5 TCP origen por paquetes')
     logging.info('###### DONE!')
 
     #TODO: Añadir código para obtener los datos y generar la gráfica de top puerto destino TCP por paquetes
     logging.info('Ejecutando tshark para obtener los datos del puerto destino TCP por paquetes')
-    codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e tcp.dstport -e frame.len -Y \'tcp\''.format(args.tracefile))
+    codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e tcp.dstport -Y \'tcp\''.format(args.tracefile))
 
     dic = {}
+    top5 = {}
     for linea in salida.split('\n'):
         if linea != '':
-            celda = linea.split('\t')
-            if celda[0] in dic:
-                tam = int(dic.get(celda[0])) + int(celda[1])
-                dic[celda[0]] = tam
+            if linea in dic:
+            	tam = dic.get(linea) + 1             
+            	dic[linea] = tam
             else:
-                dic[celda[0]] = int(celda[1])
+            	dic[linea] = 1           
+    top5 = dict(Counter(dic).most_common(5))
+    total = sum(top5.values())
+    lista = top5.values()
+    for e in lista:
+    	e = 100*e/total
+
+    pintarTarta(top5.keys(), lista,'Top5 TCP destino por paquetes.png','Top5 TCP destino por paquetes')
     logging.info('###### DONE!')
 
     #TODO: Añadir código para obtener los datos y generar la gráfica de top puerto destino TCP por bytes
     logging.info('Ejecutando tshark para obtener los datos del puerto destino TCP por bytes')
-    codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e tcp.dstport -Y \'tcp\''.format(args.tracefile))
+    codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e tcp.dstport -e frame.len -Y \'tcp\''.format(args.tracefile))
 
     dic = {}
-    for linea in salida.split('\n'):
-        if linea != '':
-            if linea in dic:
-                tam = dic.get(linea) + 1
-                dic[linea] = tam
-            else:
-                dic[linea] = 1
+    top5 = {}
+	for linea in salida.split('\n'):
+		if linea != '':
+			celda = linea.split('\t')
+			if celda[0] in dic:
+				tam = int(dic.get(celda[0])) + int(celda[1])
+				dic[celda[0]] = tam
+			else:
+				dic[celda[0]] = int(celda[1])
+    top5 = dict(Counter(dic).most_common(5))
+    total = sum(top5.values())
+    lista = top5.values()
+    for e in lista:
+    	e = 100*e/total
+
+    pintarTarta(top5.keys(), lista,'Top5 TCP destino por bytes.png','Top5 TCP destino por bytes')
     logging.info('###### DONE!')
 
     #Obtención de top puertos UDP
@@ -368,6 +432,7 @@ if __name__ == "__main__":
     codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e udp.srcport -e frame.len -Y \'udp\''.format(args.tracefile))
 
     dic = {}
+    top5 = {}
     for linea in salida.split('\n'):
         if linea != '':
             celda = linea.split('\t')
@@ -376,19 +441,35 @@ if __name__ == "__main__":
                 dic[celda[0]] = tam
             else:
                 dic[celda[0]] = int(celda[1])
+    top5 = dict(Counter(dic).most_common(5))
+    total = sum(top5.values())
+    lista = top5.values()
+    for e in lista:
+    	e = 100*e/total
 
+    pintarTarta(top5.keys(), lista,'Top5 UDP origen por bytes.png','Top5 UDP origen por bytes')
     logging.info('###### DONE!')
+
     #TODO: Añadir código para obtener los datos y generar la gráfica de top puerto destino UDP por bytes
     logging.info('Ejecutando tshark para obtener los datos del puerto destino UDP por bytes')
-    codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e udp.dstport -Y \'udp\''.format(args.tracefile))
+    codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e udp.dstport -e frame.len -Y \'udp\''.format(args.tracefile))
     dic = {}
-    for linea in salida.split('\n'):
-        if linea != '':
-            if linea in dic:
-                tam = dic.get(linea) + 1
-                dic[linea] = tam
-            else:
-                dic[linea] = 1
+    top5 = {}
+	for linea in salida.split('\n'):
+		if linea != '':
+			celda = linea.split('\t')
+			if celda[0] in dic:
+				tam = int(dic.get(celda[0])) + int(celda[1])
+				dic[celda[0]] = tam
+			else:
+				dic[celda[0]] = int(celda[1])
+    top5 = dict(Counter(dic).most_common(5))
+    total = sum(top5.values())
+    lista = top5.values()
+    for e in lista:
+    	e = 100*e/total
+
+    pintarTarta(top5.keys(), lista,'Top5 UDP destino por bytes.png','Top5 UDP destino por bytes')
     logging.info('###### DONE!')
 
     #TODO: Añadir código para obtener los datos y generar la gráfica de top puerto origen UDP por paquetes
@@ -396,6 +477,7 @@ if __name__ == "__main__":
     codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e udp.srcport -Y \'udp\''.format(args.tracefile))
 
     dic = {}
+    top5 = {}
     for linea in salida.split('\n'):
         if linea != '':
             if linea in dic:
@@ -403,23 +485,38 @@ if __name__ == "__main__":
                 dic[linea] = tam
             else:
                 dic[linea] = 1
+    top5 = dict(Counter(dic).most_common(5))
+    total = sum(top5.values())
+    lista = top5.values()
+    for e in lista:
+    	e = 100*e/total
+
+    pintarTarta(top5.keys(), lista,'Top5 UDP origen por paquetes.png','Top5 UDP origen por paquetes')
     logging.info('###### DONE!')
 
     #TODO: Añadir código para obtener los datos y generar la gráfica de top puerto destino UDP por paquetes
     logging.info('Ejecutando tshark para obtener los datos del puerto destino UDP por paquetes')
-    codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e udp.dstport -e frame.len -Y \'udp\''.format(args.tracefile))
+    codigo,salida = ejecutarComandoObtenerSalida('tshark -r {} -T fields -e udp.dstport -Y \'udp\''.format(args.tracefile))
 
     dic = {}
+    top5 = {}
     for linea in salida.split('\n'):
-        if linea != '':
-            celda = linea.split('\t')
-            if celda[0] in dic:
-                tam = int(dic.get(celda[0])) + int(celda[1])
-                dic[celda[0]] = tam
-            else:
-                dic[celda[0]] = int(celda[1])
+    	if linea != '':
+    		if linea in dic:
+    			tam = dic.get(linea) + 1
+    			dic[linea] = tam
+    		else:
+    			dic[linea] = 1
+    top5 = dict(Counter(dic).most_common(5))
+    total = sum(top5.values())
+    lista = top5.values()
+    for e in lista:
+    	e = 100*e/total
+
+    pintarTarta(top5.keys(), lista,'Top5 UDP destino por paquetes.png','Top5 UDP destino por paquetes')
     logging.info('###### DONE!')
 
+    '''
     #Obtención de series temporales de ancho de banda
     #TODO: Añadir código para obtener los datos y generar la gráfica de la serie temporal de ancho de banda con MAC como origen
     logging.info('Ejecutando tshark para obtener el ancho de banda con la direccion MAC como origen')
@@ -480,7 +577,7 @@ if __name__ == "__main__":
 
     xaxis = list(range(prime_time, prime_time + tam))
     pintarSerieTemporal(xaxis, serie, "Ancho_Banda_MACDestino", "Ancho de banda", "tiempo(s)", "bytes/segundo")
-    logging.info('###### DONE!')
+    logging.info('###### DONE!')'''
 
     #Obtención de las ECDF de tamaño de los paquetes
     #TODO: Añadir código para obtener los datos y generar la gráfica de la ECDF de los tamaños de los paquetes a nivel 2
